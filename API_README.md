@@ -1,134 +1,383 @@
 # Nevo Backend API Documentation
 
-This document describes how to use the Nevo backend from your frontend application. It covers authentication, user linking, assessment, lessons, personalization, parent tracking, and student dashboard endpoints.
+This document describes how to use the Nevo backend from your frontend application. All endpoints are RESTful and accept/return JSON. Copy-paste ready payloads and endpoint examples are provided.
 
 ---
 
 ## Authentication
 
 ### Signup
-- **POST /signup**
-- Body: `{ name, email, password, role }`
-- Roles: `student`, `teacher`, `parent`
-- Response: `{ user }`
+
+```http
+POST /signup
+Content-Type: application/json
+```
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "yourpassword",
+  "role": "student" // or "teacher" or "parent"
+}
+```
+
+Response:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "student"
+  }
+}
+```
 
 ### Login
-- **POST /login**
-- Body: `{ email, password }`
-- Response: `{ token }`
+
+```http
+POST /login
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "john@example.com",
+  "password": "yourpassword"
+}
+```
+
+Response:
+
+```json
+{
+  "token": "<JWT_TOKEN>"
+}
+```
 
 ---
 
 ## User Linking
 
 ### Link Student to Teacher
-- **POST /link/student-to-teacher**
-- Auth: Bearer token (student)
-- Body: `{ studentEmail, teacherEmail }`
-- Response: `{ message }`
+
+```http
+POST /link/student-to-teacher
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "studentEmail": "student@example.com",
+  "teacherEmail": "teacher@example.com"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Linked successfully"
+}
+```
 
 ### Link Student to Parent
-- **POST /link/student-to-parent**
-- Auth: Bearer token (student)
-- Body: `{ studentEmail, parentEmail }`
-- Response: `{ message }`
+
+```http
+POST /link/student-to-parent
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "studentEmail": "student@example.com",
+  "parentEmail": "parent@example.com"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Linked successfully"
+}
+```
 
 ### Link Teacher to Student
-- **POST /link/teacher-to-student**
-- Auth: Bearer token (teacher)
-- Body: `{ teacherEmail, studentEmail }`
-- Response: `{ message }`
+
+```http
+POST /link/teacher-to-student
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "teacherEmail": "teacher@example.com",
+  "studentEmail": "student@example.com"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Linked successfully"
+}
+```
 
 ### Get Linked Users
-- **GET /linked-users**
-- Auth: Bearer token
-- Response: `{ relationships: [...] }`
+
+```http
+GET /linked-users
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "relationships": [
+    {
+      "student": { },
+      "teacher": { },
+      "parent": { }
+    }
+  ]
+}
+```
 
 ---
 
 ## Assessment & Diagnosis
 
 ### Submit Assessment
-- **POST /assessment/submit**
-- Auth: Bearer token (student)
-- Body: `{ answers: [{ type, value }, ...] }`
-- Response: `{ primary, secondary, recommendedLearningMethod, lessonInstructions }`
+
+```http
+POST /assessment/submit
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "answers": [
+    { "type": "attention", "value": 5 },
+    { "type": "social", "value": 3 },
+    { "type": "reading", "value": 2 }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "primary": "ADHD",
+  "secondary": "ASD",
+  "recommendedLearningMethod": "visual",
+  "lessonInstructions": "Build lessons for visual learners"
+}
+```
 
 ### Get Assessment Result
-- **GET /assessment/result**
-- Auth: Bearer token (student)
-- Response: `{ diagnosis, learningStyle, assessmentScoreSummary }`
+
+```http
+GET /assessment/result
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "diagnosis": "ADHD",
+  "learningStyle": "visual",
+  "assessmentScoreSummary": "{\"ADHD\":5,\"ASD\":3,\"Dyslexia\":2}"
+}
+```
 
 ---
 
 ## Lessons
 
 ### Upload Lesson
-- **POST /lesson/upload**
-- Auth: Bearer token (teacher)
-- Body: `{ title, content }`
-- Response: `{ lesson }`
+
+```http
+POST /lesson/upload
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "title": "Sample Lesson",
+  "content": "Lesson content here."
+}
+```
+
+Response:
+
+```json
+{
+  "lesson": {
+    "id": 1,
+    "title": "Sample Lesson",
+    "content": "Lesson content here."
+  }
+}
+```
 
 ### List Lessons
-- **GET /lesson/list**
-- Auth: Bearer token (teacher)
-- Response: `{ lessons: [...] }`
+
+```http
+GET /lesson/list
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "lessons": [ { "id": 1, "title": "Sample Lesson" } ]
+}
+```
 
 ### Get Lesson by ID
-- **GET /lesson/{id}**
-- Auth: Bearer token
-- Response: `{ lesson }`
+
+```http
+GET /lesson/{id}
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "lesson": { "id": 1, "title": "Sample Lesson" }
+}
+```
 
 ---
 
 ## Lesson Personalization
 
 ### Personalize Lesson for Student
-- **POST /lesson/{id}/personalize-for-student**
-- Auth: Bearer token (student)
-- Response: `{ personalizedLesson }`
+
+```http
+POST /lesson/{id}/personalize-for-student
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "personalizedLesson": {
+    "id": 1,
+    "lessonId": 1,
+    "studentId": 2,
+    "personalizedContent": "...",
+    "learningStyleUsed": "visual"
+  }
+}
+```
 
 ### Get Student's Personalized Lessons
-- **GET /student/{id}/personalized-lessons**
-- Auth: Bearer token (student)
-- Response: `{ lessons: [...] }`
+
+```http
+GET /student/{id}/personalized-lessons
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "lessons": [ { "id": 1, "lessonId": 1 } ]
+}
+```
 
 ---
 
 ## Parent Tracking
 
 ### Get Parent's Students
-- **GET /parent/{id}/students**
-- Auth: Bearer token (parent)
-- Response: `{ students: [...] }`
+
+```http
+GET /parent/{id}/students
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "students": [ { "id": 2, "name": "Student Name" } ]
+}
+```
 
 ### Get Student Progress
-- **GET /student/{id}/progress**
-- Auth: Bearer token (parent or student)
-- Response: `{ progress: [...] }`
+
+```http
+GET /student/{id}/progress
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "progress": [ { "lessonId": 1, "completionPercentage": 80 } ]
+}
+```
 
 ---
 
 ## Student Dashboard
 
 ### Get Student's Lessons
-- **GET /student/{id}/lessons**
-- Auth: Bearer token (student)
-- Response: `{ lessons: [...] }`
+
+```http
+GET /student/{id}/lessons
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "lessons": [ { "id": 1, "title": "Sample Lesson" } ]
+}
+```
 
 ### Get Student's Learning Style
-- **GET /student/{id}/learning-style**
-- Auth: Bearer token (student)
-- Response: `{ learningStyle }`
+
+```http
+GET /student/{id}/learning-style
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "learningStyle": "visual"
+}
+```
 
 ---
 
 ## Usage Notes
-- All endpoints require JSON bodies and responses.
+- All endpoints require JSON bodies and responses unless otherwise noted.
 - Authenticated endpoints require `Authorization: Bearer <token>` header.
 - Use the token from `/login` for all protected routes.
+- Error responses are in `{ "error": "message" }` format.
 - For file uploads, extend `/lesson/upload` to accept multipart/form-data if needed.
-- Error responses are in `{ error: "message" }` format.
 
 ---
 
