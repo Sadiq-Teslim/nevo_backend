@@ -37,7 +37,7 @@ async function personalizeLesson(req, res) {
 
   // AI prompt for personalization
   const prompt = `Rewrite this lesson for a ${style} learner: ${lesson.content}`;
-  const response = await axios.post('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + process.env.GEMINI_API_KEY, {
+  const response = await axios.post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=' + process.env.GEMINI_API_KEY, {
     contents: [{ parts: [{ text: prompt }] }]
   });
   const personalizedContent = response.data.candidates[0].content.parts[0].text.trim();

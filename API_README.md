@@ -1,6 +1,6 @@
 # Nevo Backend API Documentation
 
-This document describes how to use the Nevo backend from your frontend application. All endpoints are RESTful and accept/return JSON. Copy-paste ready payloads and endpoint examples are provided.
+This document describes how to use the Nevo backend. All endpoints are RESTful and accept/return JSON. Copy-paste ready payloads and endpoint examples are provided.
 
 ---
 
@@ -180,7 +180,8 @@ Response:
   "primary": "ADHD",
   "secondary": "ASD",
   "recommendedLearningMethod": "visual",
-  "lessonInstructions": "Build lessons for visual learners"
+  "lessonInstructions": "Build lessons for visual learners",
+  "aiModel": "gemini-2.5-pro"
 }
 ```
 
@@ -373,11 +374,14 @@ Response:
 ---
 
 ## Usage Notes
+
 - All endpoints require JSON bodies and responses unless otherwise noted.
 - Authenticated endpoints require `Authorization: Bearer <token>` header.
 - Use the token from `/login` for all protected routes.
 - Error responses are in `{ "error": "message" }` format.
 - For file uploads, extend `/lesson/upload` to accept multipart/form-data if needed.
+
+All AI-powered endpoints (diagnosis, lesson personalization) use Gemini 2.5 Pro. Output may include additional fields such as `aiModel`.
 
 ---
 
