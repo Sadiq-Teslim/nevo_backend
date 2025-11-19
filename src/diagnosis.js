@@ -61,7 +61,7 @@ async function getAssessmentResult(req, res) {
   });
 }
 
-module.exports = { submitAssessment, getAssessmentResult };
+module.exports = { submitAssessment, getAssessmentResult, getAssessmentQuestions };
 
 
 // GET /assessment/questions
