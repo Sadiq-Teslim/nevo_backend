@@ -1,23 +1,22 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+const PersonalizedLesson = require('../models/PersonalizedLesson');
+const Lesson = require('../models/Lesson');
+const StudentProfile = require('../models/StudentProfile');
 
 // GET /student/:id/lessons
 async function getStudentLessons(req, res) {
-  const studentId = parseInt(req.params.id);
-  // Find lessons linked to student via relationships or personalized lessons
-  const personalizedLessons = await prisma.personalizedLesson.findMany({
-    where: { studentId },
-    include: { lesson: true }
-  });
-  const lessons = personalizedLessons.map(pl => pl.lesson);
+  const studentId = req.params.id;
+  // Find lessons linked to student via personalized lessons
+  const personalizedLessons = await PersonalizedLesson.find({ studentId }).populate('lessonId');
+  const lessons = personalizedLessons.map(pl => pl.lessonId);
   res.json({ lessons });
 }
 
 // GET /student/:id/learning-style
 async function getStudentLearningStyle(req, res) {
-  const studentId = parseInt(req.params.id);
-  const profile = await prisma.studentProfile.findUnique({ where: { userId: studentId } });
-  res.json({ learningStyle: profile.learningStyle });
+  const studentId = req.params.id;
+  const profile = await StudentProfile.findOne({ userId: studentId });
+  res.json({ learningStyle: profile?.learningStyle });
 }
 
 module.exports = { getStudentLessons, getStudentLearningStyle };

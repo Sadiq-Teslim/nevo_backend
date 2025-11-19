@@ -1,5 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+const User = require('../models/User');
+const Relationship = require('../models/Relationship');
 
 // Helper: send invite email (placeholder)
 async function sendInviteEmail(email) {
@@ -10,17 +11,17 @@ async function sendInviteEmail(email) {
 // Link Student to Teacher
 async function linkStudentToTeacher(req, res) {
   const { studentEmail, teacherEmail } = req.body;
-  const student = await prisma.user.findUnique({ where: { email: studentEmail } });
-  const teacher = await prisma.user.findUnique({ where: { email: teacherEmail } });
+  const student = await User.findOne({ email: studentEmail });
+  const teacher = await User.findOne({ email: teacherEmail });
 
   if (student && teacher) {
-    await prisma.relationship.create({ data: { studentId: student.id, teacherId: teacher.id } });
+    await Relationship.create({ studentId: student._id, teacherId: teacher._id });
     return res.json({ message: 'Linked successfully' });
   }
 
   if (!teacher) {
     await sendInviteEmail(teacherEmail);
-    await prisma.relationship.create({ data: { studentId: student ? student.id : null, teacherId: null } });
+    await Relationship.create({ studentId: student ? student._id : null, teacherId: null });
     return res.json({ message: 'Teacher invited, pending link' });
   }
 
@@ -30,17 +31,17 @@ async function linkStudentToTeacher(req, res) {
 // Link Student to Parent
 async function linkStudentToParent(req, res) {
   const { studentEmail, parentEmail } = req.body;
-  const student = await prisma.user.findUnique({ where: { email: studentEmail } });
-  const parent = await prisma.user.findUnique({ where: { email: parentEmail } });
+  const student = await User.findOne({ email: studentEmail });
+  const parent = await User.findOne({ email: parentEmail });
 
   if (student && parent) {
-    await prisma.relationship.create({ data: { studentId: student.id, parentId: parent.id } });
+    await Relationship.create({ studentId: student._id, parentId: parent._id });
     return res.json({ message: 'Linked successfully' });
   }
 
   if (!parent) {
     await sendInviteEmail(parentEmail);
-    await prisma.relationship.create({ data: { studentId: student ? student.id : null, parentId: null } });
+    await Relationship.create({ studentId: student ? student._id : null, parentId: null });
     return res.json({ message: 'Parent invited, pending link' });
   }
 
@@ -50,17 +51,17 @@ async function linkStudentToParent(req, res) {
 // Link Teacher to Student
 async function linkTeacherToStudent(req, res) {
   const { teacherEmail, studentEmail } = req.body;
-  const teacher = await prisma.user.findUnique({ where: { email: teacherEmail } });
-  const student = await prisma.user.findUnique({ where: { email: studentEmail } });
+  const teacher = await User.findOne({ email: teacherEmail });
+  const student = await User.findOne({ email: studentEmail });
 
   if (teacher && student) {
-    await prisma.relationship.create({ data: { teacherId: teacher.id, studentId: student.id } });
+    await Relationship.create({ teacherId: teacher._id, studentId: student._id });
     return res.json({ message: 'Linked successfully' });
   }
 
   if (!student) {
     await sendInviteEmail(studentEmail);
-    await prisma.relationship.create({ data: { teacherId: teacher ? teacher.id : null, studentId: null } });
+    await Relationship.create({ teacherId: teacher ? teacher._id : null, studentId: null });
     return res.json({ message: 'Student invited, pending link' });
   }
 
@@ -70,20 +71,13 @@ async function linkTeacherToStudent(req, res) {
 // Get linked users for a user
 async function getLinkedUsers(req, res) {
   const userId = req.user.userId;
-  const relationships = await prisma.relationship.findMany({
-    where: {
-      OR: [
-        { studentId: userId },
-        { teacherId: userId },
-        { parentId: userId }
-      ]
-    },
-    include: {
-      student: true,
-      teacher: true,
-      parent: true
-    }
-  });
+  const relationships = await Relationship.find({
+    $or: [
+      { studentId: userId },
+      { teacherId: userId },
+      { parentId: userId }
+    ]
+  }).populate('studentId teacherId parentId');
   res.json({ relationships });
 }
 
