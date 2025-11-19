@@ -1,9 +1,16 @@
 
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const app = express();
 app.use(express.json());
+
+// Allow CORS for frontend dev
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
