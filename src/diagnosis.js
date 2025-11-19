@@ -62,3 +62,39 @@ async function getAssessmentResult(req, res) {
 }
 
 module.exports = { submitAssessment, getAssessmentResult };
+
+
+// GET /assessment/questions
+function getAssessmentQuestions(req, res) {
+  // Sample questions, adjust as needed
+  const questions = [
+    {
+      id: 1,
+      question: 'How do you prefer to learn new things?',
+      options: [
+        { value: 'visual', label: 'By seeing pictures or diagrams', profile: 'visual', icon: '🖼️' },
+        { value: 'auditory', label: 'By listening to explanations', profile: 'auditory', icon: '🎧' },
+        { value: 'kinesthetic', label: 'By doing hands-on activities', profile: 'kinesthetic', icon: '👐' }
+      ]
+    },
+    {
+      id: 2,
+      question: 'Which activity do you enjoy most in class?',
+      options: [
+        { value: 'reading', label: 'Reading books or stories', profile: 'reading', icon: '📚' },
+        { value: 'group', label: 'Working in groups', profile: 'social', icon: '👥' },
+        { value: 'games', label: 'Playing educational games', profile: 'games', icon: '🎲' }
+      ]
+    },
+    {
+      id: 3,
+      question: 'When you don’t understand something, what helps you most?',
+      options: [
+        { value: 'ask', label: 'Asking the teacher for help', profile: 'social', icon: '🙋' },
+        { value: 'draw', label: 'Drawing it out', profile: 'visual', icon: '✏️' },
+        { value: 'repeat', label: 'Repeating it aloud', profile: 'auditory', icon: '🔊' }
+      ]
+    }
+  ];
+  res.json(questions);
+}

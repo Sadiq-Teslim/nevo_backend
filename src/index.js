@@ -29,7 +29,8 @@ const {
 } = require('./linking');
 const {
   submitAssessment,
-  getAssessmentResult
+  getAssessmentResult,
+  getAssessmentQuestions
 } = require('./diagnosis');
 const {
   uploadLesson,
@@ -59,6 +60,8 @@ app.post('/link/student-to-parent', authMiddleware(['student']), linkStudentToPa
 app.post('/link/teacher-to-student', authMiddleware(['teacher']), linkTeacherToStudent);
 app.get('/linked-users', authMiddleware(), getLinkedUsers);
 
+
+app.get('/assessment/questions', authMiddleware(['student']), getAssessmentQuestions);
 app.post('/assessment/submit', authMiddleware(['student']), submitAssessment);
 app.get('/assessment/result', authMiddleware(['student']), getAssessmentResult);
 
