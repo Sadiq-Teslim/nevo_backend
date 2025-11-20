@@ -37,7 +37,8 @@ const {
   listLessons,
   getLesson,
   personalizeLesson,
-  getPersonalizedLessons
+  getPersonalizedLessons,
+  updateLesson
 } = require('./lesson');
 const {
   getParentStudents,
@@ -75,9 +76,25 @@ app.get('/parent/:id/students', authMiddleware(['parent']), getParentStudents);
 app.get('/student/:id/progress', authMiddleware(['parent', 'student']), getStudentProgress);
 
 app.get('/student/:id/lessons', authMiddleware(['student']), getStudentLessons);
+
+// Fallback endpoint for demo: return all lessons for any student
+app.get('/student/lessons', authMiddleware(['student']), async (req, res) => {
+  const Lesson = require('../models/Lesson');
+  const lessons = await Lesson.find({});
+  const lessonsMapped = lessons.map(l => {
+    const obj = l.toObject();
+    obj.id = obj._id;
+    delete obj._id;
+    if (!obj.slides) obj.slides = [];
+    return obj;
+  });
+  res.json({ lessons: lessonsMapped });
+});
 app.get('/student/:id/learning-style', authMiddleware(['student']), getStudentLearningStyle);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+// PUT endpoint for updating a lesson
+app.put('/lesson/:id', authMiddleware(['teacher']), updateLesson);

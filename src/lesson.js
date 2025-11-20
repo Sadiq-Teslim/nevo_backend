@@ -10,21 +10,37 @@ async function uploadLesson(req, res) {
   const teacherId = req.user.userId;
   const lesson = new Lesson({ title, content, teacherId });
   await lesson.save();
-  res.json({ lesson });
+  const lessonObj = lesson.toObject();
+  lessonObj.id = lessonObj._id;
+  delete lessonObj._id;
+  if (!lessonObj.slides) lessonObj.slides = [];
+  res.json({ lesson: lessonObj });
 }
 
 // List lessons for teacher
 async function listLessons(req, res) {
   const teacherId = req.user.userId;
   const lessons = await Lesson.find({ teacherId });
-  res.json({ lessons });
+  const lessonsMapped = lessons.map(l => {
+    const obj = l.toObject();
+    obj.id = obj._id;
+    delete obj._id;
+    if (!obj.slides) obj.slides = [];
+    return obj;
+  });
+  res.json({ lessons: lessonsMapped });
 }
 
 // Get lesson by id
 async function getLesson(req, res) {
   const lessonId = req.params.id;
   const lesson = await Lesson.findById(lessonId);
-  res.json({ lesson });
+  if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
+  const lessonObj = lesson.toObject();
+  lessonObj.id = lessonObj._id;
+  delete lessonObj._id;
+  if (!lessonObj.slides) lessonObj.slides = [];
+  res.json({ lesson: lessonObj });
 }
 
 // Personalize lesson for student (AI)
@@ -59,11 +75,24 @@ async function getPersonalizedLessons(req, res) {
   const lessons = await PersonalizedLesson.find({ studentId });
   res.json({ lessons });
 }
+// Update lesson by id
+async function updateLesson(req, res) {
+  const lessonId = req.params.id;
+  const update = req.body;
+  const lesson = await Lesson.findByIdAndUpdate(lessonId, update, { new: true });
+  if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
+  const lessonObj = lesson.toObject();
+  lessonObj.id = lessonObj._id;
+  delete lessonObj._id;
+  if (!lessonObj.slides) lessonObj.slides = [];
+  res.json({ lesson: lessonObj });
+}
 
 module.exports = {
   uploadLesson,
   listLessons,
   getLesson,
   personalizeLesson,
-  getPersonalizedLessons
+  getPersonalizedLessons,
+  updateLesson,
 };

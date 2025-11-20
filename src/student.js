@@ -8,7 +8,14 @@ async function getStudentLessons(req, res) {
   const studentId = req.params.id;
   // Find lessons linked to student via personalized lessons
   const personalizedLessons = await PersonalizedLesson.find({ studentId }).populate('lessonId');
-  const lessons = personalizedLessons.map(pl => pl.lessonId);
+  const lessons = personalizedLessons.map(pl => {
+    if (!pl.lessonId) return null;
+    const obj = pl.lessonId.toObject();
+    obj.id = obj._id;
+    delete obj._id;
+    if (!obj.slides) obj.slides = [];
+    return obj;
+  }).filter(Boolean);
   res.json({ lessons });
 }
 
