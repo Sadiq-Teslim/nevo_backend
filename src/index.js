@@ -8,7 +8,10 @@ app.use(express.json());
 
 // Allow CORS for frontend dev
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://nevo-ruddy.vercel.app'
+  ],
   credentials: true,
 }));
 
